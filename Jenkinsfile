@@ -26,31 +26,38 @@ pipeline {
     stages {
         stage('Checkout') {
            steps {
+               echo "=== Starting stage: Checkout ==="
                checkout scm
+               echo "=== Completed stage: Checkout ==="
            }
         }
 
         stage('Read Version') {
            steps {
+               echo "=== Starting stage: Read Version ==="
                script {
                    def pom = readMavenPom(file: 'petclinc/pom.xml')
                    appVersion = pom.version ?: '1.0.0'
                    echo "Application version: ${appVersion}"
                }
+               echo "=== Completed stage: Read Version ==="
            }
         }
 
         stage('Build & Unit Tests') {
            steps {
+               echo "=== Starting stage: Build & Unit Tests ==="
                sh '''
                    cd petclinc
                    mvn -B clean verify
                '''
+               echo "=== Completed stage: Build & Unit Tests ==="
            }
         }
 
         stage('Verify Build Artifacts') {
            steps {
+               echo "=== Starting stage: Verify Build Artifacts ==="
                sh '''
                    cd petclinc
                    pwd
@@ -61,17 +68,19 @@ pipeline {
                    test -f target/site/jacoco/jacoco.xml || echo "Jacoco report not found"
                    test -d target/surefire-reports || echo "Surefire reports not found"
                '''
+               echo "=== Completed stage: Verify Build Artifacts ==="
            }
         }
 
         stage('SonarQube Analysis') {
            steps {
+               echo "=== Starting stage: SonarQube Analysis ==="
                withSonarQubeEnv('sonar-server') {
                    sh '''
                        cd petclinc
                        mvn -B sonar:sonar \
-                         -Dsonar.projectKey=petclinic \
-                         -Dsonar.projectName=petclinic \
+                         -Dsonar.projectKey=petclinic-cicd \
+                         -Dsonar.projectName=petclinic-cicd \
                          -Dsonar.sources=src/main/java \
                          -Dsonar.tests=src/test/java \
                          -Dsonar.java.binaries=target/classes \
@@ -79,11 +88,13 @@ pipeline {
                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                    '''
                }
+               echo "=== Completed stage: SonarQube Analysis ==="
            }
         }
 
         stage('SonarQube Quality Gate') {
            steps {
+               echo "=== Starting stage: SonarQube Quality Gate ==="
                timeout(time: 10, unit: 'MINUTES') {
                    script {
                        def qg = waitForQualityGate()
@@ -92,11 +103,13 @@ pipeline {
                        }
                    }
                }
+               echo "=== Completed stage: SonarQube Quality Gate ==="
            }
         }
 
         stage('Trivy File System Scan') {
            steps {
+               echo "=== Starting stage: Trivy File System Scan ==="
                sh '''
                    set +e
                    echo "=== Trivy FS debug start ==="
@@ -115,29 +128,33 @@ pipeline {
                    echo "=== Trivy FS debug end ==="
                    exit 0
                '''
+               echo "=== Completed stage: Trivy File System Scan ==="
            }
         }
 
         stage('Docker Build') {
            steps {
+               echo "=== Starting stage: Docker Build ==="
                script {
                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                        sh """
                            aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
-
+ 
                            docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} \
                              -f petclinc/Dockerfile petclinc
-
+ 
                            docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} \
                              -f mysql/Dockerfile mysql
                        """
                    }
                }
+               echo "=== Completed stage: Docker Build ==="
            }
         }
 
         stage('Trivy Image Scan') {
            steps {
+               echo "=== Starting stage: Trivy Image Scan ==="
                script {
                    def dockerfileScan = sh(
                        script: """
@@ -147,7 +164,7 @@ pipeline {
                        """,
                        returnStatus: true
                    )
-
+ 
                    def appImageScan = sh(
                        script: """
                            set +e
@@ -156,7 +173,7 @@ pipeline {
                        """,
                        returnStatus: true
                    )
-
+ 
                    def mysqlImageScan = sh(
                        script: """
                            set +e
@@ -165,16 +182,18 @@ pipeline {
                        """,
                        returnStatus: true
                    )
-
+ 
                    echo "Dockerfile scan exit code: ${dockerfileScan}"
                    echo "App image scan exit code: ${appImageScan}"
                    echo "MySQL image scan exit code: ${mysqlImageScan}"
                }
+               echo "=== Completed stage: Trivy Image Scan ==="
            }
         }
 
         stage('ECR Image Push') {
            steps {
+               echo "=== Starting stage: ECR Image Push ==="
                script {
                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                        sh """
@@ -184,6 +203,7 @@ pipeline {
                        """
                    }
                }
+               echo "=== Completed stage: ECR Image Push ==="
            }
         }
 
@@ -192,9 +212,11 @@ pipeline {
                expression { return params.DEPLOY == true }
            }
            steps {
+               echo "=== Starting stage: Deploy ==="
                sh '''
                    echo "Deploying Pet Clinic application"
                '''
+               echo "=== Completed stage: Deploy ==="
            }
         }
     }
