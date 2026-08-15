@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        acc_id = "160885265516"
+        acc_id = "843916760700"
         region = "us-east-1"
         app_repo = "petclinic"
         mysql_repo = "petclinic-mysql"
@@ -101,7 +101,7 @@ pipeline {
                    trivy fs \
                    --scanners vuln,secret,misconfig \
                    --severity HIGH,CRITICAL \
-                   --exit-code 0 \
+                   --exit-code 1 \
                    --format table \
                    --output trivy-fs-report.txt \
                    .
@@ -132,25 +132,25 @@ pipeline {
                script {
                    def dockerfileScan = sh(
                        script: """
-                           trivy config --exit-code 0 --severity HIGH,CRITICAL --format table ./petclinc/Dockerfile
+                           trivy config --exit-code 1 --severity HIGH,CRITICAL --format table ./petclinc/Dockerfile
                        """,
                        returnStatus: true
                    )
-
+ 
                    def appImageScan = sh(
                        script: """
-                           trivy image --scanners vuln --pkg-types os,library --exit-code 0 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion}
+                           trivy image --scanners vuln --pkg-types os,library --exit-code 1 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion}
                        """,
                        returnStatus: true
                    )
-
+ 
                    def mysqlImageScan = sh(
                        script: """
-                           trivy image --scanners vuln --pkg-types os,library --exit-code 0 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion}
+                           trivy image --scanners vuln --pkg-types os,library --exit-code 1 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion}
                        """,
                        returnStatus: true
                    )
-
+ 
                    if (dockerfileScan != 0 || appImageScan != 0 || mysqlImageScan != 0) {
                        error "Trivy found HIGH/CRITICAL issues in Dockerfile and/or container images. Failing pipeline."
                    }
