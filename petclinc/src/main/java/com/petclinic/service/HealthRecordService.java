@@ -31,17 +31,17 @@ public class HealthRecordService {
     }
 
     public HealthRecord updateHealthRecord(Long id, HealthRecord recordDetails) {
-        HealthRecord record = getHealthRecordById(id);
-        record.setRecordType(recordDetails.getRecordType());
-        record.setRecordDate(recordDetails.getRecordDate());
-        record.setDescription(recordDetails.getDescription());
-        record.setMedication(recordDetails.getMedication());
-        record.setDosage(recordDetails.getDosage());
-        record.setDiagnosis(recordDetails.getDiagnosis());
-        record.setTreatment(recordDetails.getTreatment());
-        record.setNotes(recordDetails.getNotes());
-        record.setVeterinarian(recordDetails.getVeterinarian());
-        return healthRecordRepository.save(record);
+        HealthRecord healthRecord = getHealthRecordById(id);
+        healthRecord.setRecordType(recordDetails.getRecordType());
+        healthRecord.setRecordDate(recordDetails.getRecordDate());
+        healthRecord.setDescription(recordDetails.getDescription());
+        healthRecord.setMedication(recordDetails.getMedication());
+        healthRecord.setDosage(recordDetails.getDosage());
+        healthRecord.setDiagnosis(recordDetails.getDiagnosis());
+        healthRecord.setTreatment(recordDetails.getTreatment());
+        healthRecord.setNotes(recordDetails.getNotes());
+        healthRecord.setVeterinarian(recordDetails.getVeterinarian());
+        return healthRecordRepository.save(healthRecord);
     }
 
     public void deleteHealthRecord(Long id) {

@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class OwnerController {
     private final OwnerService ownerService;
 
+    private static final String OWNER_ATTR = "owner";
+    private static final String OWNERS_ATTR = "owners";
+    private static final String OWNERS_LIST_VIEW = "owners/list";
+    private static final String OWNER_FORM_VIEW = "owners/form";
+    private static final String REDIRECT_OWNERS = "redirect:/owners";
+    private static final String REDIRECT_OWNER = "redirect:/owners/";
+
     @GetMapping
     public String list(Model model) {
         model.addAttribute("owners", ownerService.getAllOwners());

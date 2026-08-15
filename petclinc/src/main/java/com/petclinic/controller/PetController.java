@@ -21,6 +21,14 @@ public class PetController {
     private final OwnerService ownerService;
     private final PetTypeService petTypeService;
 
+    private static final String PET_ATTR = "pet";
+    private static final String PETS_ATTR = "pets";
+    private static final String OWNERS_ATTR = "owners";
+    private static final String PET_TYPES_ATTR = "petTypes";
+    private static final String PETS_LIST_VIEW = "pets/list";
+    private static final String PET_FORM_VIEW = "pets/form";
+    private static final String REDIRECT_PETS = "redirect:/pets/";
+
     @GetMapping
     public String list(Model model) {
         model.addAttribute("pets", petService.getAllPets());

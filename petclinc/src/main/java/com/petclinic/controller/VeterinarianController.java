@@ -18,6 +18,13 @@ public class VeterinarianController {
     private final VeterinarianService veterinarianService;
     private final SpecialtyService specialtyService;
 
+    private static final String VET_ATTR = "vet";
+    private static final String VETS_ATTR = "vets";
+    private static final String SPECIALTIES_ATTR = "specialties";
+    private static final String VETS_LIST_VIEW = "vets/list";
+    private static final String VET_FORM_VIEW = "vets/form";
+    private static final String REDIRECT_VETS = "redirect:/vets/";
+
     @GetMapping
     public String list(Model model) {
         model.addAttribute("vets", veterinarianService.getAllVeterinarians());
