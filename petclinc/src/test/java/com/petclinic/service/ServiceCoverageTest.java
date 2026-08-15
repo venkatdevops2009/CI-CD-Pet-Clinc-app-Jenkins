@@ -20,8 +20,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceCoverageTest {
+
+    private static final Clock TEST_CLOCK = Clock.fixed(Instant.parse("2024-01-01T12:00:00Z"), ZoneOffset.UTC);
 
     @Mock
     private OwnerRepository ownerRepository;
@@ -131,7 +137,7 @@ class ServiceCoverageTest {
         pet.setName("Max");
         pet.setOwner(owner);
         pet.setPetType(petType);
-        pet.setDateOfBirth(LocalDate.of(2020, 1, 2));
+        pet.setDateOfBirth(LocalDate.of(2020, Month.JANUARY, 2));
 
         when(petRepository.findAll()).thenReturn(List.of(pet));
         when(petRepository.findById(2L)).thenReturn(Optional.of(pet));
@@ -146,7 +152,7 @@ class ServiceCoverageTest {
 
         Pet updateDetails = new Pet();
         updateDetails.setName("Buddy");
-        updateDetails.setDateOfBirth(LocalDate.of(2021, 3, 4));
+        updateDetails.setDateOfBirth(LocalDate.of(2021, Month.MARCH, 4));
         PetType newType = new PetType();
         newType.setName("Cat");
         updateDetails.setPetType(newType);
@@ -255,17 +261,17 @@ class ServiceCoverageTest {
         pet.setId(20L);
         pet.setName("Luna");
 
-        HealthRecord record = new HealthRecord();
-        record.setId(30L);
-        record.setPet(pet);
-        record.setRecordType("Vaccination");
-        record.setRecordDate(LocalDate.of(2024, 5, 1));
-        record.setDescription("Annual vaccine");
+        HealthRecord healthRecord = new HealthRecord();
+        healthRecord.setId(30L);
+        healthRecord.setPet(pet);
+        healthRecord.setRecordType("Vaccination");
+        healthRecord.setRecordDate(LocalDate.of(2024, Month.MAY, 1));
+        healthRecord.setDescription("Annual vaccine");
 
-        when(healthRecordRepository.findAll()).thenReturn(List.of(record));
-        when(healthRecordRepository.findById(30L)).thenReturn(Optional.of(record));
-        when(healthRecordRepository.findByPetOrderByRecordDateDesc(pet)).thenReturn(List.of(record));
-        when(healthRecordRepository.save(record)).thenReturn(record);
+        when(healthRecordRepository.findAll()).thenReturn(List.of(healthRecord));
+        when(healthRecordRepository.findById(30L)).thenReturn(Optional.of(healthRecord));
+        when(healthRecordRepository.findByPetOrderByRecordDateDesc(pet)).thenReturn(List.of(healthRecord));
+        when(healthRecordRepository.save(healthRecord)).thenReturn(healthRecord);
 
         assertEquals(1, healthRecordService.getAllHealthRecords().size());
         assertEquals("Vaccination", healthRecordService.getHealthRecordById(30L).getRecordType());
@@ -273,7 +279,7 @@ class ServiceCoverageTest {
 
         HealthRecord updatedDetails = new HealthRecord();
         updatedDetails.setRecordType("Checkup");
-        updatedDetails.setRecordDate(LocalDate.of(2024, 5, 10));
+        updatedDetails.setRecordDate(LocalDate.of(2024, Month.MAY, 10));
         updatedDetails.setDescription("Routine checkup");
         updatedDetails.setMedication("Vitamin");
         updatedDetails.setDosage("1 tablet");
@@ -284,7 +290,7 @@ class ServiceCoverageTest {
         HealthRecord updated = healthRecordService.updateHealthRecord(30L, updatedDetails);
         assertEquals("Checkup", updated.getRecordType());
 
-        healthRecordService.createHealthRecord(record);
+        healthRecordService.createHealthRecord(healthRecord);
         healthRecordService.deleteHealthRecord(30L);
         verify(healthRecordRepository).deleteById(30L);
     }
@@ -304,7 +310,7 @@ class ServiceCoverageTest {
         appointment.setId(60L);
         appointment.setPet(pet);
         appointment.setVeterinarian(veterinarian);
-        appointment.setAppointmentTime(LocalDateTime.now().plusDays(1));
+        appointment.setAppointmentTime(LocalDateTime.now(TEST_CLOCK).plusDays(1));
         appointment.setReason("Checkup");
         appointment.setStatus("SCHEDULED");
         appointment.setNotes("Routine visit");
@@ -325,7 +331,7 @@ class ServiceCoverageTest {
         Appointment updatedDetails = new Appointment();
         updatedDetails.setPet(pet);
         updatedDetails.setVeterinarian(veterinarian);
-        updatedDetails.setAppointmentTime(LocalDateTime.now().plusDays(2));
+        updatedDetails.setAppointmentTime(LocalDateTime.now(TEST_CLOCK).plusDays(2));
         updatedDetails.setReason("Follow-up");
         updatedDetails.setStatus("CONFIRMED");
         updatedDetails.setNotes("Follow-up after exam");

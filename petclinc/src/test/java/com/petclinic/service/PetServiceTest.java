@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,7 +68,7 @@ class PetServiceTest {
         Pet existing = new Pet();
         existing.setId(3L);
         existing.setName("Old Name");
-        existing.setDateOfBirth(LocalDate.of(2020, 1, 1));
+        existing.setDateOfBirth(LocalDate.of(2020, Month.JANUARY, 1));
 
         PetType petType = new PetType();
         petType.setId(4L);
@@ -85,7 +86,7 @@ class PetServiceTest {
 
         Pet details = new Pet();
         details.setName("New Name");
-        details.setDateOfBirth(LocalDate.of(2021, 5, 15));
+        details.setDateOfBirth(LocalDate.of(2021, Month.MAY, 15));
 
         PetType newType = new PetType();
         newType.setId(9L);
@@ -98,7 +99,7 @@ class PetServiceTest {
         Pet result = petService.updatePet(3L, details);
 
         assertEquals("New Name", result.getName());
-        assertEquals(LocalDate.of(2021, 5, 15), result.getDateOfBirth());
+        assertEquals(LocalDate.of(2021, Month.MAY, 15), result.getDateOfBirth());
         assertEquals("Cat", result.getPetType().getName());
     }
 }
