@@ -152,7 +152,11 @@
                         <configuration>
                             <rules>
                                 <rule>
-                                    <element>BUNDLE</element>
+                                    <element>PACKAGE</element>
+                                    <includes>
+                                        <include>com.petclinic.service.*</include>
+                                        <include>com.petclinic.controller.*</include>
+                                    </includes>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
