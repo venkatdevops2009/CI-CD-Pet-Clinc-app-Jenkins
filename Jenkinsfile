@@ -247,7 +247,11 @@ pipeline {
 
     post {
         always {
+           sh '''
+           
            docker image prune -f || true
+           
+           '''
            archiveArtifacts artifacts: 'trivy-fs-report.txt, **/*.xml, **/*.html', allowEmptyArchive: true
            echo 'Pipeline finished'
         }
