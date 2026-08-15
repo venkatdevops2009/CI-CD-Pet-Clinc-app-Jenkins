@@ -1,0 +1,73 @@
+<!-- APPOINTMENTS LIST AND FORM -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointments - Pet Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .badge-scheduled { background-color: #28a745; }
+        .badge-completed { background-color: #6c757d; }
+        .badge-cancelled { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="bi bi-hospital"></i> Pet Clinic</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/appointments">All Appointments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/appointments/upcoming">Upcoming</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-calendar-check"></i> Appointments</h2>
+            <a href="/appointments/new" class="btn btn-success"><i class="bi bi-calendar-plus"></i> Book Appointment</a>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Pet</th>
+                            <th>Owner</th>
+                            <th>Veterinarian</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="appt : ${appointments}">
+                            <td th:text="${#temporals.format(appt.appointmentTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${appt.pet.name}"></td>
+                            <td th:text="${appt.pet.owner.fullName}"></td>
+                            <td th:text="${appt.veterinarian.fullName}"></td>
+                            <td th:text="${appt.reason}"></td>
+                            <td>
+                                <span class="badge" th:classappend="'badge-' + ${appt.status.toLowerCase()}" th:text="${appt.status}"></span>
+                            </td>
+                            <td>
+                                <a th:href="@{/appointments/{id}/edit(id=${appt.id})}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                                <form th:action="@{/appointments/{id}/delete(id=${appt.id})}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Cancel?')"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
