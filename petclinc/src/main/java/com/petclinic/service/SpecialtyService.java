@@ -1,6 +1,7 @@
 // --------- SpecialtyService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.Specialty;
 import com.petclinic.repository.SpecialtyRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class SpecialtyService {
     }
 
     public Specialty getSpecialtyById(Long id) {
-        return specialtyRepository.findById(id).orElseThrow(() -> new RuntimeException("Specialty not found"));
+        return specialtyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Specialty not found"));
     }
 
     public Specialty createSpecialty(Specialty specialty) {

@@ -1,6 +1,7 @@
 // --------- VeterinarianService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.Veterinarian;
 import com.petclinic.repository.VeterinarianRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class VeterinarianService {
     }
 
     public Veterinarian getVeterinarianById(Long id) {
-        return veterinarianRepository.findById(id).orElseThrow(() -> new RuntimeException("Veterinarian not found"));
+        return veterinarianRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Veterinarian not found"));
     }
 
     public Veterinarian createVeterinarian(Veterinarian veterinarian) {

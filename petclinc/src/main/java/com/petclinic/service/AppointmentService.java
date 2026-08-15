@@ -1,6 +1,7 @@
 // --------- AppointmentService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.Appointment;
 import com.petclinic.model.Pet;
 import com.petclinic.model.Veterinarian;
@@ -20,7 +21,7 @@ public class AppointmentService {
     }
 
     public Appointment getAppointmentById(Long id) {
-        return appointmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Appointment not found"));
+        return appointmentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
     }
 
     public List<Appointment> getAppointmentsByPet(Pet pet) {

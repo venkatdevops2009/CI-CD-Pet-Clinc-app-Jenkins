@@ -1,6 +1,7 @@
 // --------- PetTypeService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.PetType;
 import com.petclinic.repository.PetTypeRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class PetTypeService {
     }
 
     public PetType getPetTypeById(Long id) {
-        return petTypeRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet type not found"));
+        return petTypeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Pet type not found"));
     }
 
     public PetType createPetType(PetType petType) {

@@ -1,6 +1,7 @@
 // --------- HealthRecordService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.HealthRecord;
 import com.petclinic.model.Pet;
 import com.petclinic.repository.HealthRecordRepository;
@@ -18,7 +19,7 @@ public class HealthRecordService {
     }
 
     public HealthRecord getHealthRecordById(Long id) {
-        return healthRecordRepository.findById(id).orElseThrow(() -> new RuntimeException("Health record not found"));
+        return healthRecordRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Health record not found"));
     }
 
     public List<HealthRecord> getHealthRecordsByPet(Pet pet) {

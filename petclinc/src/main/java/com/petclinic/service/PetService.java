@@ -1,6 +1,7 @@
 // --------- PetService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.Pet;
 import com.petclinic.model.Owner;
 import com.petclinic.repository.PetRepository;
@@ -18,7 +19,7 @@ public class PetService {
     }
 
     public Pet getPetById(Long id) {
-        return petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet not found"));
+        return petRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Pet not found"));
     }
 
     public List<Pet> getPetsByOwner(Owner owner) {

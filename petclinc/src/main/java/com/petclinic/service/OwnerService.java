@@ -1,12 +1,12 @@
 // --------- OwnerService.java ---------
 package com.petclinic.service;
 
+import com.petclinic.exception.ResourceNotFoundException;
 import com.petclinic.model.Owner;
 import com.petclinic.repository.OwnerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +18,7 @@ public class OwnerService {
     }
 
     public Owner getOwnerById(Long id) {
-        return ownerRepository.findById(id).orElseThrow(() -> new RuntimeException("Owner not found"));
+        return ownerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
     }
 
     public Owner createOwner(Owner owner) {
