@@ -1,11 +1,9 @@
 package com.petclinic.dto;
 
-import com.petclinic.model.Pet;
-import com.petclinic.model.Veterinarian;
 import java.time.LocalDate;
 
 public class HealthRecordForm {
-    private Pet pet;
+    private Long petId;
     private String recordType;
     private LocalDate recordDate;
     private String description;
@@ -14,14 +12,14 @@ public class HealthRecordForm {
     private String diagnosis;
     private String treatment;
     private String notes;
-    private Veterinarian veterinarian;
+    private Long veterinarianId;
 
-    public Pet getPet() {
-        return pet;
+    public Long getPetId() {
+        return petId;
     }
 
-    public void setPet(Pet pet) {
-        this.pet = pet;
+    public void setPetId(Long petId) {
+        this.petId = petId;
     }
 
     public String getRecordType() {
@@ -88,11 +86,11 @@ public class HealthRecordForm {
         this.notes = notes;
     }
 
-    public Veterinarian getVeterinarian() {
-        return veterinarian;
+    public Long getVeterinarianId() {
+        return veterinarianId;
     }
 
-    public void setVeterinarian(Veterinarian veterinarian) {
-        this.veterinarian = veterinarian;
+    public void setVeterinarianId(Long veterinarianId) {
+        this.veterinarianId = veterinarianId;
     }
 }
