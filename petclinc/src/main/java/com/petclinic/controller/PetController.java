@@ -101,7 +101,7 @@ public class PetController {
         PetForm form = new PetForm();
         form.setId(pet.getId());
         form.setName(pet.getName());
-        form.setBirthDate(pet.getDateOfBirth());
+        form.setDateOfBirth(pet.getDateOfBirth());
         form.setPetTypeId(pet.getPetType() != null ? pet.getPetType().getId() : null);
         form.setOwnerId(pet.getOwner() != null ? pet.getOwner().getId() : null);
         return form;
@@ -111,7 +111,7 @@ public class PetController {
         Pet pet = new Pet();
         pet.setId(form.getId());
         pet.setName(form.getName());
-        pet.setDateOfBirth(form.getBirthDate());
+        pet.setDateOfBirth(form.getDateOfBirth());
         pet.setPetType(form.getPetTypeId() != null ? petTypeService.getPetTypeById(form.getPetTypeId()) : null);
         pet.setOwner(form.getOwnerId() != null ? ownerService.getOwnerById(form.getOwnerId()) : null);
         return pet;

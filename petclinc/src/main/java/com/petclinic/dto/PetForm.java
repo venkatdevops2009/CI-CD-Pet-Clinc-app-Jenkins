@@ -1,5 +1,7 @@
 package com.petclinic.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +14,19 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PetForm {
     private Long id;
+
+    @NotBlank(message = "Pet name is required")
     private String name;
-    private LocalDate birthDate;
+
+    @NotNull(message = "Pet type is required")
     private Long petTypeId;
+
+    @NotNull(message = "Owner is required")
     private Long ownerId;
+
+    @NotNull(message = "Date of birth is required")
+    private LocalDate dateOfBirth;
+
+    private String breed;
+    private String color;
 }

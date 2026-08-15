@@ -31,21 +31,21 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Pet Type *</label>
-                            <select class="form-select" th:field="*{petType}" required>
+                            <select class="form-select" th:field="*{petTypeId}" required>
                                 <option value="">Select Pet Type</option>
                                 <option th:each="type : ${petTypes}" th:value="${type.id}" th:text="${type.name}"></option>
                             </select>
-                            <span class="text-danger" th:if="${#fields.hasErrors('petType')}" th:errors="*{petType}"></span>
+                            <span class="text-danger" th:if="${#fields.hasErrors('petTypeId')}" th:errors="*{petTypeId}"></span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Owner *</label>
-                            <select class="form-select" th:field="*{owner}" required>
+                            <select class="form-select" th:field="*{ownerId}" required>
                                 <option value="">Select Owner</option>
                                 <option th:each="owner : ${owners}" th:value="${owner.id}" th:text="${owner.fullName}"></option>
                             </select>
-                            <span class="text-danger" th:if="${#fields.hasErrors('owner')}" th:errors="*{owner}"></span>
+                            <span class="text-danger" th:if="${#fields.hasErrors('ownerId')}" th:errors="*{ownerId}"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Date of Birth *</label>
