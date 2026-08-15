@@ -236,6 +236,8 @@ pipeline {
                    echo "=== Starting stage: Deploy ==="
                    sh '''
                        echo "Deploying Pet Clinic application"
+                       docker compose down || true
+                       docker compose up -d
                    '''
                    echo "=== Completed stage: Deploy ==="
                }
@@ -245,6 +247,7 @@ pipeline {
 
     post {
         always {
+           docker image prune -f || true
            archiveArtifacts artifacts: 'trivy-fs-report.txt, **/*.xml, **/*.html', allowEmptyArchive: true
            echo 'Pipeline finished'
         }
