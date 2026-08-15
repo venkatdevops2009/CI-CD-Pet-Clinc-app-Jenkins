@@ -26,7 +26,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mysql.version>8.4.5</mysql.version>
+        <mysql.version>8.4.0</mysql.version>
         <jackson.version>2.18.8</jackson.version>
         <tomcat.version>10.1.55</tomcat.version>
 
