@@ -30,8 +30,9 @@
         <jackson.version>2.18.8</jackson.version>
         <jackson-bom.version>2.18.8</jackson-bom.version>
         <tomcat.version>10.1.55</tomcat.version>
-        <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
-        <thymeleaf-spring6.version>3.1.4.RELEASE</thymeleaf-spring6.version>
+        <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
+        <thymeleaf-spring6.version>3.1.5.RELEASE</thymeleaf-spring6.version>
+        <spring-framework.version>6.2.19</spring-framework.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.build.directory}/site/jacoco/jacoco.xml
