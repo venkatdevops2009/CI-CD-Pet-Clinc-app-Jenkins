@@ -1,12 +1,12 @@
 pipeline {
     agent {
         node {
-           label 'ROBOSHOP'
+           label 'roboshop'
         }
     }
 
     environment {
-        acc_id = "160885265516"
+        acc_id = "843916760700"
         region = "us-east-1"
         app_repo = "petclinic"
         mysql_repo = "petclinic-mysql"
