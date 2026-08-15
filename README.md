@@ -150,7 +150,25 @@ trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL .
 
 ## Screenshots
 
-Screenshots will be added once Jenkins build execution is completed and the relevant artifacts or console captures are available.
+### Pet Clinic Application UI
+
+![Pet Clinic application homepage](images/petclinc-app.PNG)
+
+### Jenkins Build Pipeline
+
+![Jenkins build status and pipeline view](images/jenkins-build.PNG)
+
+### SonarQube Code Quality Check
+
+![SonarQube quality gate overview](images/sonar-code-check.PNG)
+
+### Trivy Filesystem Scan
+
+![Trivy filesystem scan results](images/trivy-files-scan.PNG)
+
+### Trivy Image Scan
+
+![Trivy container image scan results](images/trivy-images-scan.PNG)
 
 ## Notes
 
