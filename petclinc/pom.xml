@@ -28,6 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mysql.version>8.4.0</mysql.version>
         <jackson.version>2.18.8</jackson.version>
+        <jackson-bom.version>2.18.8</jackson-bom.version>
         <tomcat.version>10.1.55</tomcat.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
