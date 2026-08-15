@@ -30,10 +30,12 @@ public class HealthRecordController {
     private final PetService petService;
     private final VeterinarianService veterinarianService;
 
+    private static final String HEALTH_RECORDS_LIST_VIEW = "health-records/list";
+
     @GetMapping
     public String list(Model model) {
         model.addAttribute(RECORDS_ATTR, healthRecordService.getAllHealthRecords());
-        return "health-records/list";
+        return HEALTH_RECORDS_LIST_VIEW;
     }
 
     @GetMapping("/pet/{petId}")
@@ -41,7 +43,7 @@ public class HealthRecordController {
         Pet pet = petService.getPetById(petId);
         model.addAttribute(RECORDS_ATTR, healthRecordService.getHealthRecordsByPet(pet));
         model.addAttribute(PET_ATTR, pet);
-        return "health-records/list";
+        return HEALTH_RECORDS_LIST_VIEW;
     }
 
     @GetMapping("/new")

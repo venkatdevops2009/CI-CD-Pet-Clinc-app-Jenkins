@@ -1,6 +1,7 @@
 // --------- OwnerController.java ---------
 package com.petclinic.controller;
 
+import com.petclinic.dto.OwnerForm;
 import com.petclinic.model.Owner;
 import com.petclinic.service.OwnerService;
 import jakarta.validation.Valid;
@@ -25,61 +26,83 @@ public class OwnerController {
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("owners", ownerService.getAllOwners());
-        return "owners/list";
+        model.addAttribute(OWNERS_ATTR, ownerService.getAllOwners());
+        return OWNERS_LIST_VIEW;
     }
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Owner owner = ownerService.getOwnerById(id);
-        model.addAttribute("owner", owner);
+        model.addAttribute(OWNER_ATTR, toForm(owner));
         return "owners/detail";
     }
 
     @GetMapping("/new")
     public String create(Model model) {
-        model.addAttribute("owner", new Owner());
-        return "owners/form";
+        model.addAttribute(OWNER_ATTR, new OwnerForm());
+        return OWNER_FORM_VIEW;
     }
 
     @PostMapping
-    public String save(@Valid @ModelAttribute Owner owner, BindingResult result) {
+    public String save(@Valid @ModelAttribute(OWNER_ATTR) OwnerForm ownerForm, BindingResult result) {
         if (result.hasErrors()) {
-            return "owners/form";
+            return OWNER_FORM_VIEW;
         }
-        ownerService.createOwner(owner);
-        return "redirect:/owners";
+        ownerService.createOwner(toEntity(ownerForm));
+        return REDIRECT_OWNERS;
     }
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable Long id, Model model) {
         Owner owner = ownerService.getOwnerById(id);
-        model.addAttribute("owner", owner);
-        return "owners/form";
+        model.addAttribute(OWNER_ATTR, toForm(owner));
+        return OWNER_FORM_VIEW;
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id, @Valid @ModelAttribute Owner owner, BindingResult result) {
+    public String update(@PathVariable Long id, @Valid @ModelAttribute(OWNER_ATTR) OwnerForm ownerForm, BindingResult result) {
         if (result.hasErrors()) {
-            return "owners/form";
+            return OWNER_FORM_VIEW;
         }
-        ownerService.updateOwner(id, owner);
-        return "redirect:/owners/" + id;
+        ownerService.updateOwner(id, toEntity(ownerForm));
+        return REDIRECT_OWNER + id;
     }
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id) {
         ownerService.deleteOwner(id);
-        return "redirect:/owners";
+        return REDIRECT_OWNERS;
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam(required = false) String firstName, 
-                         @RequestParam(required = false) String lastName, 
+    public String search(@RequestParam(required = false) String firstName,
+                         @RequestParam(required = false) String lastName,
                          Model model) {
         if ((firstName != null && !firstName.isEmpty()) || (lastName != null && !lastName.isEmpty())) {
-            model.addAttribute("owners", ownerService.searchByName(firstName, lastName));
+            model.addAttribute(OWNERS_ATTR, ownerService.searchByName(firstName, lastName));
         }
-        return "owners/list";
+        return OWNERS_LIST_VIEW;
+    }
+
+    private OwnerForm toForm(Owner owner) {
+        OwnerForm form = new OwnerForm();
+        form.setId(owner.getId());
+        form.setFirstName(owner.getFirstName());
+        form.setLastName(owner.getLastName());
+        form.setAddress(owner.getAddress());
+        form.setCity(owner.getCity());
+        form.setTelephone(owner.getTelephone());
+        return form;
+    }
+
+    private Owner toEntity(OwnerForm form) {
+        Owner owner = new Owner();
+        owner.setId(form.getId());
+        owner.setFirstName(form.getFirstName());
+        owner.setLastName(form.getLastName());
+        owner.setAddress(form.getAddress());
+        owner.setCity(form.getCity());
+        owner.setTelephone(form.getTelephone());
+        return owner;
     }
 }
