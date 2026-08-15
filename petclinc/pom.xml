@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.13</version>
+        <version>3.5.14</version>
         <relativePath/>
     </parent>
 
@@ -30,6 +30,8 @@
         <jackson.version>2.18.8</jackson.version>
         <jackson-bom.version>2.18.8</jackson-bom.version>
         <tomcat.version>10.1.55</tomcat.version>
+        <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
+        <thymeleaf-spring6.version>3.1.4.RELEASE</thymeleaf-spring6.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.build.directory}/site/jacoco/jacoco.xml
