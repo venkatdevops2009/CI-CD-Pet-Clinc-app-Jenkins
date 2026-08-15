@@ -9,6 +9,7 @@ import com.petclinic.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -33,7 +34,7 @@ public class AppointmentService {
     }
 
     public List<Appointment> getUpcomingAppointments() {
-        return appointmentRepository.findByAppointmentTimeAfter(LocalDateTime.now());
+        return appointmentRepository.findByAppointmentTimeAfter(LocalDateTime.now(ZoneId.of("UTC")));
     }
 
     public Appointment createAppointment(Appointment appointment) {
