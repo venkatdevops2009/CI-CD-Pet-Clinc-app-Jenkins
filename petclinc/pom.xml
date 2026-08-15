@@ -32,6 +32,7 @@
         <tomcat.version>10.1.55</tomcat.version>
         <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
         <thymeleaf-spring6.version>3.1.5.RELEASE</thymeleaf-spring6.version>
+        <spring-data-commons.version>3.5.12</spring-data-commons.version>
         <spring-framework.version>6.2.19</spring-framework.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
@@ -87,6 +88,23 @@
         </dependency>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${spring-framework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>3.5.12</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
