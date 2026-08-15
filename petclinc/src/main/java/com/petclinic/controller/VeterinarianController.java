@@ -2,6 +2,7 @@
 package com.petclinic.controller;
 
 import com.petclinic.dto.VeterinarianForm;
+import com.petclinic.model.Specialty;
 import com.petclinic.model.Veterinarian;
 import com.petclinic.service.SpecialtyService;
 import com.petclinic.service.VeterinarianService;
@@ -91,7 +92,7 @@ public class VeterinarianController {
         form.setLicenseNumber(veterinarian.getLicenseNumber());
         form.setYearsOfExperience(veterinarian.getYearsOfExperience());
         form.setSpecialtyIds(veterinarian.getSpecialties() == null ? null : veterinarian.getSpecialties().stream()
-                .map(specialty -> specialty.getId())
+                .map(Specialty::getId)
                 .toList());
         return form;
     }
