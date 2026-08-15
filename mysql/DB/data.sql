@@ -1,11 +1,11 @@
 -- Pet Types
-INSERT INTO pet_types (name) VALUES
-('Dog'),
-('Cat'),
-('Bird'),
-('Rabbit'),
-('Hamster'),
-('Lizard');
+INSERT IGNORE INTO pet_types (name, description) VALUES
+('Dog', 'Companion animal'),
+('Cat', 'Indoor pet'),
+('Bird', 'Small avian companion'),
+('Rabbit', 'Small herbivore'),
+('Hamster', 'Pocket pet'),
+('Lizard', 'Reptile companion');
 
 -- Specialties
 INSERT INTO specialties (name) VALUES

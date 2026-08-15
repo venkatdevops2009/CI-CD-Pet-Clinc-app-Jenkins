@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Entity
 @Table(name = "health_records")
@@ -18,7 +16,7 @@ import java.time.ZoneId;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class HealthRecord {
+public class HealthRecord extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,14 +49,4 @@ public class HealthRecord {
     @JoinColumn(name = "vet_id", nullable = false)
     private Veterinarian veterinarian;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("UTC"));
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now(ZoneId.of("UTC"));
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now(ZoneId.of("UTC"));
-    }
 }

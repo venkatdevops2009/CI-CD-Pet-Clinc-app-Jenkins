@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Entity
 @Table(name = "appointments")
@@ -16,7 +15,7 @@ import java.time.ZoneId;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Appointment {
+public class Appointment extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,14 +38,4 @@ public class Appointment {
     private String status = "SCHEDULED";
     private String notes;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("UTC"));
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now(ZoneId.of("UTC"));
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now(ZoneId.of("UTC"));
-    }
 }
