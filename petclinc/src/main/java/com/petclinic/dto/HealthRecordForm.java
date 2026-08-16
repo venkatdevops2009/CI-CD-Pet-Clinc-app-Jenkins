@@ -15,6 +15,14 @@ public class HealthRecordForm {
     private String notes;
     private Long veterinarianId;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getPetId() {
         return petId;
     }
