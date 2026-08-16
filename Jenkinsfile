@@ -11,9 +11,16 @@ pipeline {
         app_repo = "petclinic"
         mysql_repo = "petclinic-mysql"
         appVersion = ""
+
+        // Ensure Spring Boot and Maven produce ANSI color codes
+        SPRING_OUTPUT_ANSI_ENABLED = 'ALWAYS'
+        MAVEN_OPTS = '-Djansi.passthrough=true -Dspring.output.ansi.enabled=always'
+        TERM = 'xterm-256color'
     }
 
     options {
+        // Wrap entire pipeline console output with AnsiColor so ANSI escape sequences render
+        ansiColor('xterm')
         disableConcurrentBuilds()
         timeout(time: 25, unit: 'MINUTES')
         timestamps()
@@ -56,7 +63,7 @@ pipeline {
         stage('Checkout') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Checkout ==="
+                   echo "\u001B[1;34m=== Starting stage: Checkout ===\u001B[0m"
                    script {
                        // If a branch parameter is provided, checkout that branch; otherwise fall back to scm
                        if (params.BRANCH && params.BRANCH.trim()) {
@@ -66,7 +73,7 @@ pipeline {
                            checkout scm
                        }
                    }
-                   echo "=== Completed stage: Checkout ==="
+                   echo "\u001B[1;32m=== Completed stage: Checkout ===\u001B[0m"
                }
            }
         }
@@ -74,7 +81,7 @@ pipeline {
         stage('Read Version') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Read Version ==="
+                   echo "\u001B[1;34m=== Starting stage: Read Version ===\u001B[0m"
                    script {
                        def pom = readMavenPom(file: 'petclinc/pom.xml')
                        def pomVersion = pom.version ?: '1.0.0'
@@ -87,7 +94,7 @@ pipeline {
                            echo "Application version from pom.xml: ${appVersion}"
                        }
                    }
-                   echo "=== Completed stage: Read Version ==="
+                   echo "\u001B[1;32m=== Completed stage: Read Version ===\u001B[0m"
                }
            }
         }
@@ -95,12 +102,12 @@ pipeline {
         stage('Build & Unit Tests') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Build & Unit Tests ==="
+                   echo "\u001B[1;34m=== Starting stage: Build & Unit Tests ===\u001B[0m"
                    sh '''
                        cd petclinc
-                       mvn -B clean verify
+                       mvn -B -Dstyle.color=always -Dspring.output.ansi.enabled=always clean verify
                    '''
-                   echo "=== Completed stage: Build & Unit Tests ==="
+                   echo "\u001B[1;32m=== Completed stage: Build & Unit Tests ===\u001B[0m"
                }
            }
         }
@@ -108,7 +115,7 @@ pipeline {
         stage('Verify Build Artifacts') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Verify Build Artifacts ==="
+                   echo "\u001B[1;34m=== Starting stage: Verify Build Artifacts ===\u001B[0m"
                    sh '''
                        cd petclinc
                        pwd
@@ -119,7 +126,7 @@ pipeline {
                        test -f target/site/jacoco/jacoco.xml || echo "Jacoco report not found"
                        test -d target/surefire-reports || echo "Surefire reports not found"
                    '''
-                   echo "=== Completed stage: Verify Build Artifacts ==="
+                   echo "\u001B[1;32m=== Completed stage: Verify Build Artifacts ===\u001B[0m"
                }
            }
         }
@@ -130,11 +137,11 @@ pipeline {
            }
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: SonarQube Analysis ==="
+                   echo "\u001B[1;34m=== Starting stage: SonarQube Analysis ===\u001B[0m"
                    withSonarQubeEnv('sonar-server') {
                        sh '''
                            cd petclinc
-                           mvn -B sonar:sonar \
+                           mvn -B -Dstyle.color=always -Dspring.output.ansi.enabled=always sonar:sonar \
                              -Dsonar.projectKey=petclinic-cicd \
                              -Dsonar.projectName=petclinic-cicd \
                              -Dsonar.sources=src/main/java \
@@ -144,7 +151,7 @@ pipeline {
                              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                        '''
                    }
-                   echo "=== Completed stage: SonarQube Analysis ==="
+                   echo "\u001B[1;32m=== Completed stage: SonarQube Analysis ===\u001B[0m"
                }
            }
         }
@@ -155,7 +162,7 @@ pipeline {
            }
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: SonarQube Quality Gate ==="
+                   echo "\u001B[1;34m=== Starting stage: SonarQube Quality Gate ===\u001B[0m"
                    timeout(time: 10, unit: 'MINUTES') {
                        script {
                            def qg = waitForQualityGate()
@@ -164,7 +171,7 @@ pipeline {
                            }
                        }
                    }
-                   echo "=== Completed stage: SonarQube Quality Gate ==="
+                   echo "\u001B[1;32m=== Completed stage: SonarQube Quality Gate ===\u001B[0m"
                }
            }
         }
@@ -175,7 +182,7 @@ pipeline {
            }
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Trivy File System Scan ==="
+                   echo "\u001B[1;34m=== Starting stage: Trivy File System Scan ===\u001B[0m"
                    sh '''
                        set +e
                        echo "=== Trivy FS debug start ==="
@@ -194,7 +201,7 @@ pipeline {
                        echo "=== Trivy FS debug end ==="
                        exit 0
                    '''
-                   echo "=== Completed stage: Trivy File System Scan ==="
+                   echo "\u001B[1;32m=== Completed stage: Trivy File System Scan ===\u001B[0m"
                }
            }
         }
@@ -202,7 +209,7 @@ pipeline {
         stage('Docker Build') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Docker Build ==="
+                   echo "\u001B[1;34m=== Starting stage: Docker Build ===\u001B[0m"
                    script {
                        // Allow selecting AWS credentials id from parameters
                        withAWS(credentials: params.AWS_CREDS_ID ?: 'aws-creds', region: 'us-east-1') {
@@ -222,7 +229,7 @@ pipeline {
                            """
                        }
                    }
-                   echo "=== Completed stage: Docker Build ==="
+                   echo "\u001B[1;32m=== Completed stage: Docker Build ===\u001B[0m"
                }
            }
         }
@@ -230,7 +237,7 @@ pipeline {
         stage('Trivy Image Scan') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Trivy Image Scan ==="
+                   echo "\u001B[1;34m=== Starting stage: Trivy Image Scan ===\u001B[0m"
                    script {
                        def dockerfileScan = sh(
                            script: """
@@ -264,7 +271,7 @@ pipeline {
                        echo "App image scan exit code: ${appImageScan}"
                        echo "MySQL image scan exit code: ${mysqlImageScan}"
                    }
-                   echo "=== Completed stage: Trivy Image Scan ==="
+                   echo "\u001B[1;32m=== Completed stage: Trivy Image Scan ===\u001B[0m"
                }
            }
         }
@@ -272,7 +279,7 @@ pipeline {
         stage('ECR Image Push') {
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: ECR Image Push ==="
+                   echo "\u001B[1;34m=== Starting stage: ECR Image Push ===\u001B[0m"
                    script {
                        withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                            sh """
@@ -287,7 +294,7 @@ pipeline {
                            """
                        }
                    }
-                   echo "=== Completed stage: ECR Image Push ==="
+                   echo "\u001B[1;32m=== Completed stage: ECR Image Push ===\u001B[0m"
                }
            }
         }
@@ -298,7 +305,7 @@ pipeline {
            }
            steps {
                ansiColor('xterm') {
-                   echo "=== Starting stage: Deploy ==="
+                   echo "\u001B[1;34m=== Starting stage: Deploy ===\u001B[0m"
                    script {
                        // Compute image names with possible overrides from parameters
                        def defaultAppImage = "${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion}"
@@ -331,7 +338,7 @@ pipeline {
                            """
                        }
                    }
-                   echo "=== Completed stage: Deploy ==="
+                   echo "\u001B[1;32m=== Completed stage: Deploy ===\u001B[0m"
                }
            }
         }
