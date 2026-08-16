@@ -2,8 +2,8 @@ name: petclinc
 
 services:
   mysql:
-    build: ./mysql
-    image: piridi/petclinc-mysql:v1
+    image: ${MYSQL_IMAGE:-piridi/petclinc-mysql:v1}
+    pull_policy: always
     container_name: petclinic-mysql
     restart: unless-stopped
     environment:
@@ -23,8 +23,8 @@ services:
       start_period: 20s
 
   petclinic:
-    build: ./petclinc
-    image: piridi/petclinc:v1
+    image: ${APP_IMAGE:-piridi/petclinc:v1}
+    pull_policy: always
     container_name: petclinic-app
     restart: unless-stopped
     depends_on:
