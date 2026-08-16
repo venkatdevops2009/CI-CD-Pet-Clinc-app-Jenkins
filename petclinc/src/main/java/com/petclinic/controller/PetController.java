@@ -40,7 +40,7 @@ public class PetController {
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Pet pet = petService.getPetById(id);
-        model.addAttribute(PET_ATTR, toForm(pet));
+        model.addAttribute(PET_ATTR, pet);
         return "pets/detail";
     }
 

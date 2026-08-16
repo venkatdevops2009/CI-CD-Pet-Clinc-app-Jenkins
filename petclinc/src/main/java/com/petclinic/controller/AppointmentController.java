@@ -57,6 +57,13 @@ public class AppointmentController {
        return REDIRECT_APPOINTMENTS;
    }
 
+   @GetMapping("/{id}")
+   public String detail(@PathVariable Long id, Model model) {
+       Appointment appointment = appointmentService.getAppointmentById(id);
+       model.addAttribute("appointment", appointment);
+       return "appointments/detail";
+   }
+
    @GetMapping("/{id}/edit")
    public String edit(@PathVariable Long id, Model model) {
        Appointment appointment = appointmentService.getAppointmentById(id);
@@ -91,8 +98,9 @@ public class AppointmentController {
 
    private AppointmentForm toForm(Appointment appointment) {
        AppointmentForm form = new AppointmentForm();
-       form.setPet(appointment.getPet());
-       form.setVeterinarian(appointment.getVeterinarian());
+       form.setId(appointment.getId());
+       form.setPetId(appointment.getPet() != null ? appointment.getPet().getId() : null);
+       form.setVeterinarianId(appointment.getVeterinarian() != null ? appointment.getVeterinarian().getId() : null);
        form.setAppointmentTime(appointment.getAppointmentTime());
        form.setReason(appointment.getReason());
        form.setStatus(appointment.getStatus());
@@ -102,8 +110,9 @@ public class AppointmentController {
 
    private Appointment toEntity(AppointmentForm form) {
        Appointment appointment = new Appointment();
-       appointment.setPet(form.getPet());
-       appointment.setVeterinarian(form.getVeterinarian());
+       if (form.getId() != null) appointment.setId(form.getId());
+       if (form.getPetId() != null) appointment.setPet(petService.getPetById(form.getPetId()));
+       if (form.getVeterinarianId() != null) appointment.setVeterinarian(veterinarianService.getVeterinarianById(form.getVeterinarianId()));
        appointment.setAppointmentTime(form.getAppointmentTime());
        appointment.setReason(form.getReason());
        appointment.setStatus(form.getStatus());

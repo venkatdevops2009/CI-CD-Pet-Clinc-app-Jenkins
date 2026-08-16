@@ -26,19 +26,19 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Pet *</label>
-                            <select class="form-select" th:field="*{pet}" required>
+                            <select class="form-select" th:field="*{petId}" required>
                                 <option value="">Select Pet</option>
                                 <option th:each="pet : ${pets}" th:value="${pet.id}" th:text="${pet.name} + ' - ' + ${pet.owner.fullName}"></option>
                             </select>
-                            <span class="text-danger" th:if="${#fields.hasErrors('pet')}" th:errors="*{pet}"></span>
+                            <span class="text-danger" th:if="${#fields.hasErrors('petId')}" th:errors="*{petId}"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Veterinarian *</label>
-                            <select class="form-select" th:field="*{veterinarian}" required>
+                            <select class="form-select" th:field="*{veterinarianId}" required>
                                 <option value="">Select Veterinarian</option>
                                 <option th:each="vet : ${veterinarians}" th:value="${vet.id}" th:text="${vet.fullName}"></option>
                             </select>
-                            <span class="text-danger" th:if="${#fields.hasErrors('veterinarian')}" th:errors="*{veterinarian}"></span>
+                            <span class="text-danger" th:if="${#fields.hasErrors('veterinarianId')}" th:errors="*{veterinarianId}"></span>
                         </div>
                     </div>
                     <div class="mb-3">

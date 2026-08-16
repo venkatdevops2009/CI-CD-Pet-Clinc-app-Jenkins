@@ -1,31 +1,38 @@
 package com.petclinic.dto;
 
-import com.petclinic.model.Pet;
-import com.petclinic.model.Veterinarian;
 import java.time.LocalDateTime;
 
 public class AppointmentForm {
-    private Pet pet;
-    private Veterinarian veterinarian;
+    private Long id;
+    private Long petId;
+    private Long veterinarianId;
     private LocalDateTime appointmentTime;
     private String reason;
     private String status = "SCHEDULED";
     private String notes;
 
-    public Pet getPet() {
-        return pet;
+    public Long getId() {
+        return id;
     }
 
-    public void setPet(Pet pet) {
-        this.pet = pet;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Veterinarian getVeterinarian() {
-        return veterinarian;
+    public Long getPetId() {
+        return petId;
     }
 
-    public void setVeterinarian(Veterinarian veterinarian) {
-        this.veterinarian = veterinarian;
+    public void setPetId(Long petId) {
+        this.petId = petId;
+    }
+
+    public Long getVeterinarianId() {
+        return veterinarianId;
+    }
+
+    public void setVeterinarianId(Long veterinarianId) {
+        this.veterinarianId = veterinarianId;
     }
 
     public LocalDateTime getAppointmentTime() {

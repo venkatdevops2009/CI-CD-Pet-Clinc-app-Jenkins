@@ -37,7 +37,7 @@ public class VeterinarianController {
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Veterinarian vet = veterinarianService.getVeterinarianById(id);
-        model.addAttribute(VET_ATTR, toForm(vet));
+        model.addAttribute(VET_ATTR, vet);
         return "vets/detail";
     }
 
