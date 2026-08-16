@@ -3,6 +3,7 @@ package com.petclinic.dto;
 import java.time.LocalDate;
 
 public class HealthRecordForm {
+    private Long id;
     private Long petId;
     private String recordType;
     private LocalDate recordDate;

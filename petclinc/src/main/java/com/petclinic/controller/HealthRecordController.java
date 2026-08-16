@@ -99,6 +99,7 @@ public class HealthRecordController {
 
     private HealthRecordForm toForm(HealthRecord healthRecord) {
         HealthRecordForm form = new HealthRecordForm();
+        form.setId(healthRecord.getId());
         if (healthRecord.getPet() != null) form.setPetId(healthRecord.getPet().getId());
         form.setRecordType(healthRecord.getRecordType());
         form.setRecordDate(healthRecord.getRecordDate());
