@@ -355,8 +355,8 @@ pipeline {
                        withAWS(credentials: params.AWS_CREDS_ID ?: 'aws-creds', region: region) {
                            sh """
                                echo "Deploying Pet Clinic application using images"
-                               echo "APP_IMAGE=${appImage}"
-                               echo "MYSQL_IMAGE=${mysqlImage}"
+                               echo "Computed (Groovy) appImage=${appImage}"
+                               echo "Computed (Groovy) mysqlImage=${mysqlImage}"
 
                                aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
 
@@ -373,6 +373,35 @@ pipeline {
                                # Start using pulled images (no build in deploy phase)
                                docker compose down || true
                                docker compose up -d --no-build
+
+                               # Wait for MySQL container to be ready (look for common readiness messages) with a timeout
+                               container="$(docker compose ps -q mysql || docker ps -qf 'name=petclinic-mysql')"
+                               if [ -z "$container" ]; then
+                                 echo "MySQL container not found via compose. Listing containers:" 
+                                 docker ps -a --filter name=petclinic || true
+                                 exit 1
+                               fi
+
+                               echo "Waiting for MySQL container $container to become ready (timeout 180s)..."
+                               READY=0
+                               for i in $(seq 1 36); do
+                                 echo "Checking readiness (attempt $i) -- logs tail:"
+                                 docker logs --tail 200 $container || true
+                                 # common readiness markers
+                                 if docker logs $container 2>&1 | grep -Ei "ready for connections|ready to accept connections|MySQL init process done|All MySQL slaves up and running" >/dev/null; then
+                                   READY=1
+                                   break
+                                 fi
+                                 sleep 5
+                               done
+
+                               if [ "$READY" -ne 1 ]; then
+                                 echo "MySQL did not become ready within timeout. Dumping last 500 lines of logs:" 
+                                 docker logs --tail 500 $container || true
+                                 exit 1
+                               fi
+
+                               echo "MySQL is ready; proceeding."
                            """
                        }
                    }
