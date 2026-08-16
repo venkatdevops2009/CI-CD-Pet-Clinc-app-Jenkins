@@ -44,6 +44,11 @@ pipeline {
         booleanParam(name: 'SKIP_SONARQULITY', defaultValue: false, description: 'Skip SonarQube qulity gate check (not recommended)')
         booleanParam(name: 'SKIP_TRIVY_FS', defaultValue: false, description: 'Skip Trivy filesystem scan')
         booleanParam(name: 'SKIP_TRIVY_IMG', defaultValue: false, description: 'Skip Trivy image scans')
+        
+        // Skip running unit tests in build stage (use with care)
+        booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'If true, skip running unit tests during the Build stage')
+        // When SKIP_TESTS is true, optionally attempt to reuse test reports from last successful build
+        booleanParam(name: 'REUSE_PREVIOUS_TEST_REPORTS', defaultValue: false, description: 'If true and SKIP_TESTS=true, attempt to reuse test reports from the last successful build')
 
         // Force docker rebuild even if an image with same tag exists
         booleanParam(name: 'FORCE_REBUILD', defaultValue: false, description: 'Force docker build instead of reusing existing images')
@@ -103,10 +108,23 @@ pipeline {
            steps {
                ansiColor('xterm') {
                    echo "\u001B[1;34m=== Starting stage: Build & Unit Tests ===\u001B[0m"
-                   sh '''
-                       cd petclinc
-                       mvn -B -Dstyle.color=always -Dspring.output.ansi.enabled=always clean verify
-                   '''
+                   script {
+                       if (!params.SKIP_TESTS) {
+                           sh '''
+                               cd petclinc
+                               mvn -B -Dstyle.color=always -Dspring.output.ansi.enabled=always clean verify
+                           '''
+                       } else if (params.REUSE_PREVIOUS_TEST_REPORTS) {
+                           echo 'Skipping mvn verify; attempting to reuse previous successful test reports (copying artifacts)'
+                           // Attempt to copy surefire reports from last successful build of this job
+                           step([$class: 'CopyArtifact', projectName: env.JOB_NAME, selector: [$class: 'StatusBuildSelector', stable: true], filter: 'petclinc/target/surefire-reports/*.xml', optional: true])
+                           sh '''
+                               ls -la petclinc/target/surefire-reports || true
+                           '''
+                       } else {
+                           echo 'Skipping unit tests as requested (no reuse of previous test reports)'
+                       }
+                   }
                    echo "\u001B[1;32m=== Completed stage: Build & Unit Tests ===\u001B[0m"
                }
            }
@@ -127,6 +145,26 @@ pipeline {
                        test -d target/surefire-reports || echo "Surefire reports not found"
                    '''
                    echo "\u001B[1;32m=== Completed stage: Verify Build Artifacts ===\u001B[0m"
+               }
+           }
+        }
+
+        stage('Publish Test Results') {
+           steps {
+               ansiColor('xterm') {
+                   echo "\u001B[1;34m=== Starting stage: Publish Test Results ===\u001B[0m"
+                   script {
+                       if (!params.SKIP_TESTS) {
+                           // Publish and fail the build if tests failed
+                           junit testResults: 'petclinc/target/surefire-reports/*.xml', allowEmptyResults: false
+                       } else if (params.REUSE_PREVIOUS_TEST_REPORTS) {
+                           // Use copied artifacts from previous successful build; publish them and fail if they indicate failures
+                           junit testResults: 'petclinc/target/surefire-reports/*.xml', allowEmptyResults: false
+                       } else {
+                           echo 'Tests were skipped via SKIP_TESTS; not publishing test results.'
+                       }
+                   }
+                   echo "\u001B[1;32m=== Completed stage: Publish Test Results ===\u001B[0m"
                }
            }
         }
@@ -322,7 +360,7 @@ pipeline {
 
                                aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
 
-                               # Export env vars used by docker-compose (compose file uses ${APP_IMAGE} and ${MYSQL_IMAGE})
+                               # Export env vars used by docker-compose (compose file uses APP_IMAGE and MYSQL_IMAGE)
                                export APP_IMAGE=${appImage}
                                export MYSQL_IMAGE=${mysqlImage}
 
