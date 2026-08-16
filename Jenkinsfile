@@ -251,20 +251,19 @@ pipeline {
                    script {
                        // Allow selecting AWS credentials id from parameters
                        withAWS(credentials: params.AWS_CREDS_ID ?: 'aws-creds', region: 'us-east-1') {
-                           sh """
-                               aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
+                           // Login to ECR
+                           sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com"
 
-                               # Decide whether to force build or trust existing images
-                               if [ '${params.FORCE_REBUILD}' = 'true' ]; then
-                                 echo "Forcing a rebuild of images"
-                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc
-                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql
-                               else
-                                 echo "Building images (may reuse cache)"
-                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc
-                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql
-                               fi
-                           """
+                           // Build images; choose cache/no-cache depending on FORCE_REBUILD parameter at Groovy level
+                           if (params.FORCE_REBUILD) {
+                               echo "Forcing a rebuild of images"
+                               sh "DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc"
+                               sh "DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql"
+                           } else {
+                               echo "Building images (may reuse cache)"
+                               sh "DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc"
+                               sh "DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql"
+                           }
                        }
                    }
                    echo "\u001B[1;32m=== Completed stage: Docker Build ===\u001B[0m"
@@ -353,28 +352,28 @@ pipeline {
                        def mysqlImage = params.MYSQL_IMAGE_OVERRIDE?.trim() ? params.MYSQL_IMAGE_OVERRIDE.trim() : defaultMysqlImage
 
                        withAWS(credentials: params.AWS_CREDS_ID ?: 'aws-creds', region: region) {
-                           sh """
+                           // Perform ECR login first
+                           sh '''
                                echo "Deploying Pet Clinic application using images"
-                               echo "Computed (Groovy) appImage=${appImage}"
-                               echo "Computed (Groovy) mysqlImage=${mysqlImage}"
+                           '''
 
-                               aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
+                           // Login to ECR using AWS CLI (interpolating region and acc_id from Groovy env)
+                           sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com"
 
-                               # Export env vars used by docker-compose (compose file uses APP_IMAGE and MYSQL_IMAGE)
-                               export APP_IMAGE=${appImage}
-                               export MYSQL_IMAGE=${mysqlImage}
+                           // Prepare export string with the computed image names
+                           def exportEnv = "export APP_IMAGE='${appImage}'; export MYSQL_IMAGE='${mysqlImage}';"
 
-                               # If requested, pull from registry to ensure latest scanned image
-                               if [ '${params.USE_ECR_IMAGES}' = 'true' ]; then
-                                 echo "Pulling images from registry"
-                                 docker compose pull || true
-                               fi
+                           // Optionally pull images from ECR (run per-call with exports so envs are present)
+                           if (params.USE_ECR_IMAGES) {
+                               sh "${exportEnv} docker compose pull || true"
+                           }
 
-                               # Start using pulled images (no build in deploy phase)
-                               docker compose down || true
-                               docker compose up -d --no-build
+                           // Bring down and up the compose stack using the exported env values
+                           sh "${exportEnv} docker compose down || true"
+                           sh "${exportEnv} docker compose up -d --no-build"
 
-                               # Wait for MySQL container to be ready (look for common readiness messages) with a timeout
+                           // Wait for MySQL container to become ready. Use a single-quoted heredoc to avoid Groovy interpolation of $ variables.
+                           sh '''
                                container="$(docker compose ps -q mysql || docker ps -qf 'name=petclinic-mysql')"
                                if [ -z "$container" ]; then
                                  echo "MySQL container not found via compose. Listing containers:" 
@@ -387,7 +386,6 @@ pipeline {
                                for i in $(seq 1 36); do
                                  echo "Checking readiness (attempt $i) -- logs tail:"
                                  docker logs --tail 200 $container || true
-                                 # common readiness markers
                                  if docker logs $container 2>&1 | grep -Ei "ready for connections|ready to accept connections|MySQL init process done|All MySQL slaves up and running" >/dev/null; then
                                    READY=1
                                    break
@@ -402,7 +400,7 @@ pipeline {
                                fi
 
                                echo "MySQL is ready; proceeding."
-                           """
+                           '''
                        }
                    }
                    echo "\u001B[1;32m=== Completed stage: Deploy ===\u001B[0m"
