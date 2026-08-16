@@ -33,7 +33,7 @@ public class OwnerController {
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Owner owner = ownerService.getOwnerById(id);
-        model.addAttribute(OWNER_ATTR, toForm(owner));
+        model.addAttribute(OWNER_ATTR, owner);
         return "owners/detail";
     }
 
