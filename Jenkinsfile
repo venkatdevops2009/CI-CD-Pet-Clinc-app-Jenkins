@@ -216,15 +216,15 @@ pipeline {
                            sh """
                                aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
 
-                               // Decide whether to force build or trust existing images
+                               # Decide whether to force build or trust existing images
                                if [ '${params.FORCE_REBUILD}' = 'true' ]; then
                                  echo "Forcing a rebuild of images"
-                                 docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc
-                                 docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql
+                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc
+                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql
                                else
                                  echo "Building images (may reuse cache)"
-                                 docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc
-                                 docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql
+                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} -f petclinc/Dockerfile petclinc
+                                 DOCKER_BUILDKIT=1 docker build --progress=plain -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} -f mysql/Dockerfile mysql
                                fi
                            """
                        }
@@ -243,8 +243,8 @@ pipeline {
                            script: """
                                set +e
                                echo "=== Trivy Dockerfile debug ==="
-                               trivy config --exit-code 1 --severity HIGH,CRITICAL --format table ./petclinc/Dockerfile || true
-                               trivy config --exit-code 1 --severity HIGH,CRITICAL --format table ./mysql/Dockerfile || true
+                               trivy config --exit-code 1 --severity HIGH,CRITICAL --format table ./petclinc/Dockerfile | tee trivy-dockerfile-petclinc-report.txt || true
+                               trivy config --exit-code 1 --severity HIGH,CRITICAL --format table ./mysql/Dockerfile | tee trivy-dockerfile-mysql-report.txt || true
                            """,
                            returnStatus: true
                        )
@@ -253,7 +253,7 @@ pipeline {
                            script: """
                                set +e
                                echo "=== Trivy app image debug ==="
-                               trivy image --scanners vuln --pkg-types os,library --exit-code 1 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} || true
+                               trivy image --scanners vuln --pkg-types os,library --exit-code 1 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} | tee trivy-app-image-report.txt || true
                            """,
                            returnStatus: true
                        )
@@ -262,7 +262,7 @@ pipeline {
                            script: """
                                set +e
                                echo "=== Trivy mysql image debug ==="
-                               trivy image --scanners vuln --pkg-types os,library --exit-code 1 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} || true
+                               trivy image --scanners vuln --pkg-types os,library --exit-code 1 --severity HIGH,CRITICAL --format table ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion} | tee trivy-mysql-image-report.txt || true
                            """,
                            returnStatus: true
                        )
@@ -284,11 +284,11 @@ pipeline {
                        withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                            sh """
                                aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
-                               // Push images (use provided AWS creds id)
+                               # Push images (use provided AWS creds id)
                                docker push ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion}
                                docker push ${acc_id}.dkr.ecr.${region}.amazonaws.com/${mysql_repo}:${appVersion}
 
-                               // Optionally tag as 'latest' for convenience (comment out if undesired)
+                               # Optionally tag as 'latest' for convenience (comment out if undesired)
                                docker tag ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:${appVersion} ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:latest || true
                                docker push ${acc_id}.dkr.ecr.${region}.amazonaws.com/${app_repo}:latest || true
                            """
