@@ -1,8 +1,9 @@
 module "sg" {
-    count = length(var.sg_names)
-    source = "git::https://github.com/venkatdevops2009/terraform-aws-sg.git?ref=main"
-    project = var.project
-    environment = var.environment
-    vpc_id = local.vpc_id
-    sg_name = replace(var.sg_names[count.index], "_", "-")
+  count  = length(var.sg_names)
+  source = "../modules/sg"
+
+  project     = var.project
+  environment = var.environment
+  vpc_id      = local.vpc_id
+  sg_name     = replace(var.sg_names[count.index], "_", "-")
 }

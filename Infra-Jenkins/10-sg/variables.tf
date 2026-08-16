@@ -1,17 +1,17 @@
 variable "project" {
-    default = "petclinc"
+  default = "petclinc"
 }
 
 variable "environment" {
-    default = "dev"
+  default = "dev"
 }
 
 variable "sg_names" {
-    type = list
-    default = [
-        "petclinc", 
-        "jenkins", 
-        "jenkins_agent", 
-        "sonar"        
-    ]
+  type = list(any)
+  default = [
+    "petclinc",
+    "jenkins",
+    "jenkins_agent",
+    "sonar"
+  ]
 }

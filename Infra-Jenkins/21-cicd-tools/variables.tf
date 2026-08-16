@@ -1,23 +1,23 @@
 variable "project" {
-    default = "petclinc"
+  default = "petclinc"
 }
 
 variable "environment" {
-    default = "dev"
+  default = "dev"
 }
 
 variable "zone_id" {
-    default = "Z0353101YWAUTK0SB32S"
+  default = "Z0353101YWAUTK0SB32S"
 }
 
 variable "domain_name" {
-    default = "piridishop.shop"
+  default = "piridishop.shop"
 }
 
 variable "sonar" {
-    default = false
+  default = false
 }
 
 variable "jenkins" {
-    default = true
+  default = true
 }

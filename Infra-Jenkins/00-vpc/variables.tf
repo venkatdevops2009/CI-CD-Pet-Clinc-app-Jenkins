@@ -1,7 +1,7 @@
 variable "project" {
-    default = "petclinc"
+  default = "petclinc"
 }
 
 variable "environment" {
-    default = "dev"
+  default = "dev"
 }

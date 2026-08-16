@@ -1,30 +1,45 @@
-# 00-vpc — Network Foundation
+# 00-vpc — PetClinic AWS network foundation
 
-**Order: 1st (run this before everything else)**
+This is the first Terraform layer in the repository. It creates the base network for the PetClinic environment and stores the key values in AWS Systems Manager Parameter Store so later layers can read them without hard-coding IDs.
 
 ## Purpose
-Creates the network everything else lives in: the VPC, public / private /
-database subnets across AZs, internet & NAT gateways, and route tables. This is
-done by calling the reusable module
-[`terraform-aws-vpc`](https://github.com/venkatdevops2009/terraform-aws-vpc-module.git).
 
-## What it creates
-- 1 VPC + subnets (public, private, database) — via the `vpc` module
-  ([main.tf](./main.tf)). `is_peering_required = false` here (no peering).
-- SSM parameters so later layers can find the network ([parameters.tf](./parameters.tf)):
+The VPC layer creates the networking foundation used by the application and related services in the PetClinic AWS deployment. In the current repository, this is the starting point for the infrastructure stack and provides:
+
+- a VPC for the environment
+- public, private, and database subnet groups
+- internet and routing components needed for access and isolation
+- SSM parameters for later infrastructure layers to consume
+
+## What this layer creates
+
+- VPC and subnet layout for the PetClinic environment
+- route tables and gateways required for connectivity
+- parameter values such as:
   - `/petclinc/dev/vpc_id`
   - `/petclinc/dev/public_subnet_ids`
   - `/petclinc/dev/private_subnet_ids`
   - `/petclinc/dev/database_subnet_ids`
 
-## Depends on
-Nothing — this is the first layer.
+These values are used by the following Terraform layers and deployment resources.
 
-## Consumed by
-Almost every later layer reads `vpc_id` and/or the subnet IDs from SSM
-(10-sg, 30-bastion, 40-databases, 50-backend-alb, 60-catalogue, 80-frontend-alb).
+## Depends on
+
+- Nothing. This is the first layer.
+
+## Used by
+
+- `10-sg` for security group placement inside the VPC
+- any future application, database, or load balancer layers that need the VPC ID and subnet IDs
 
 ## Run
+
 ```bash
-terraform init && terraform apply
+terraform init
+terraform apply
 ```
+
+## Notes
+
+This repository currently contains the network and security-group starting blocks for the PetClinic infrastructure demo. Additional Terraform layers can be added later as the AWS deployment grows.
+

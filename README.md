@@ -1,76 +1,93 @@
-# Pet Clinic Management System
+# CI/CD Pet Clinic Application
 
-A Spring Boot-based pet clinic application for managing owners, pets, veterinarians, appointments, and health records. This project includes a CI/CD pipeline with Maven build verification, SonarQube quality checks, Trivy security scans, Docker image builds, and ECR publishing.
+This repository contains a Spring Boot Pet Clinic application, a Jenkins-based CI/CD pipeline, Docker packaging, and a minimal Terraform foundation for AWS infrastructure. The project is designed to demonstrate a DevSecOps workflow: build, test, static analysis, security scanning, image packaging, and deployment automation.
+
+## What is in this repository
+
+- `petclinc/` — Spring Boot application source code and Maven build
+- `mysql/` — hardened MySQL container image used by the app database
+- `Jenkinsfile` — pipeline that runs Maven, SonarQube, Trivy, Docker, and ECR steps
+- `docker-compose.yaml` — local container stack for app and MySQL
+- `.env.example` — local environment variables for Docker Compose
+- `Infra-Jenkins/` — Terraform layers for the VPC and security group foundation
+- `images/` — screenshots for application, Jenkins, Sonar, and Trivy outputs
+- `sonar-issues.json` — exported Sonar issues used during remediation work
+- `sonar-project.properties` — Sonar project configuration
 
 ## Features
 
-- Owner management with add, edit, view, search, and delete flows
-- Pet registration and owner mapping
+- Owner management with add, view, edit, and delete flows
+- Pet registration linked to an owner
 - Health record tracking for pets
-- Veterinarian profile management
-- Appointment scheduling and dashboard overview
-- Thymeleaf + Bootstrap-based responsive UI
-- Input validation on forms
-- MySQL persistence with Spring Data JPA
-- Jenkins CI/CD pipeline with SonarQube + Trivy integrations
-- JaCoCo coverage enforcement for 80% line coverage
+- Veterinarian catalog and related workflows
+- Appointment booking and management
+- Thymeleaf + Bootstrap user interface
+- MySQL persistence via Spring Data JPA
+- Input validation and form handling
+- CI/CD pipeline with Maven, SonarQube, Trivy, Docker, and ECR support
+- JaCoCo coverage enforcement for build quality
 
-## Tech Stack
+## Tech stack
 
 - Java 17
 - Spring Boot 3.5.14
-- Thymeleaf
 - Spring Data JPA
+- Thymeleaf
 - MySQL 8
 - Maven
+- Docker
 - Jenkins
 - SonarQube
 - Trivy
-- Docker / Amazon ECR
-- JUnit 5 + Mockito
+- Amazon ECR
+- JUnit 5 / Mockito
 - JaCoCo
 
-## Repository Structure
+## Repository layout
 
 ```text
 CI-CD-Pet-Clinc-app-Jenkins/
-├── Jenkinsfile
 ├── README.md
+├── Jenkinsfile
+├── docker-compose.yaml
+├── .env.example
 ├── sonar-issues.json
 ├── sonar-project.properties
-├── docker-compose.yaml
+├── images/
 ├── mysql/
 │   └── Dockerfile
 ├── petclinc/
 │   ├── Dockerfile
 │   ├── pom.xml
-│   ├── src/
-│   │   ├── main/
-│   │   └── test/
-│   └── target/   (generated after build)
-└── .env.example
+│   └── src/
+├── Infra-Jenkins/
+│   ├── 00-vpc/
+│   │   └── README.md
+│   └── 10-sg/
+│       └── README.md
+└── .gitignore
 ```
 
 ## Prerequisites
 
 - Java 17+
-- Maven 3.8+
-- Docker
-- MySQL or Docker Compose
-- Jenkins with required plugins:
+- Maven 3.9+
+- Docker and Docker Compose
+- MySQL or Docker Compose stack
+- Jenkins with pipeline support and required plugins such as:
   - Pipeline
   - AnsiColor
   - AWS Credentials
   - SonarQube Scanner
 - SonarQube server configured as `sonar-server`
-- Trivy installed on the Jenkins agent
+- Trivy installed on the agent host
 
-## Local Setup
+## Local development
 
-### 1. Clone repository
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/venkatdevops2009/CI-CD-Pet-Clinc-app-Jenkins.git
+git clone <repo-url>
 cd CI-CD-Pet-Clinc-app-Jenkins
 ```
 
@@ -100,42 +117,37 @@ http://localhost:8080
 docker-compose up --build
 ```
 
-## CI/CD Pipeline
+This starts the application and MySQL containers using the values from `.env.example`.
 
-The project includes a Jenkins pipeline in `Jenkinsfile` that performs:
+## CI/CD flow
+
+The `Jenkinsfile` performs the following stages:
 
 1. Checkout source code
-2. Read project version from `pom.xml`
-3. Maven clean verify build
-4. Artifact verification
-5. SonarQube static analysis
-6. Quality gate check
-7. Trivy filesystem scan
-8. Docker image build for app and MySQL
-9. Trivy image scan
-10. Push images to ECR
-11. Optional deployment step controlled by the `DEPLOY` parameter
+2. Read version information from `petclinc/pom.xml`
+3. Run Maven build and unit tests
+4. Verify generated build artifacts
+5. Publish test results
+6. Run SonarQube analysis
+7. Enforce the quality gate
+8. Run Trivy filesystem scan
+9. Build Docker images for the app and MySQL database
+10. Run Trivy image scans
+11. Push images to Amazon ECR
+12. Optionally deploy using the `DEPLOY` and environment parameters
 
-### Jenkins configuration
+### Jenkins expectations
 
-The Jenkins pipeline expects:
+The pipeline assumes:
 
-- SonarQube server named: `sonar-server`
-- AWS credentials ID: `aws-creds`
-- Node/agent label: `roboshop`
-- AnsiColor plugin installed for colorized console logs
+- A SonarQube server named `sonar-server`
+- AWS credentials with ID `aws-creds`
+- Jenkins agent label `roboshop`
+- ANSI color plugin for readable console output
 
-### Sonar and coverage requirements
-
-- SonarQube analysis runs on `src/main/java` and `src/test/java`
-- JaCoCo report path is configured in `pom.xml`
-- The project enforces 80% line coverage in the `jacoco:check` lifecycle step
-
-## Quality and Security Checks
+## Code quality and security checks
 
 ### SonarQube
-
-The project is configured for Sonar scanning via Maven and Jenkins.
 
 ```bash
 cd petclinc
@@ -148,34 +160,23 @@ mvn sonar:sonar
 trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL .
 ```
 
-## Screenshots
+The repo also contains a quality gate in Maven and a dedicated Sonar export file (`sonar-issues.json`) for issue tracking and remediation.
 
-### Pet Clinic Application UI
+## Terraform infrastructure foundation
 
-![Pet Clinic application homepage](images/petclinc-app.PNG)
+The `Infra-Jenkins` folder contains the AWS foundation for this project:
 
-### Jenkins Build Pipeline
+- `00-vpc` — creates the VPC, subnets, gateways, and route tables
+- `10-sg` — creates the base security groups used by the environment
 
-![Jenkins build status and pipeline view](images/jenkins-build.PNG)
-
-### SonarQube Code Quality Check
-
-![SonarQube quality gate overview](images/sonar-code-check.PNG)
-
-### Trivy Filesystem Scan
-
-![Trivy filesystem scan results](images/trivy-files-scan.PNG)
-
-### Trivy Image Scan
-
-![Trivy container image scan results](images/trivy-images-scan.PNG)
+These modules are the infrastructure starting point for the PetClinic deployment and are intended to be used before additional AWS resources are added.
 
 ## Notes
 
-- `sonar-issues.json` is a snapshot of static analysis issues from the Sonar scan and was used to guide remediation.
-- The project includes the 80% code coverage gate in the Maven build to satisfy quality expectations.
-- Jenkins runtime output is colorized via the AnsiColor plugin.
+- `sonar-issues.json` documents the Sonar findings that were investigated and addressed during hardening work.
+- The application container is designed for a hardened runtime with non-root execution and reduced asset exposure.
+- The repository reflects a practical example of applying security scanning, code-quality checks, and container hardening in a Java application workflow.
 
 ## License
 
-This project is provided as-is for educational and demo use.
+This project is provided for learning, demonstration, and DevSecOps practice purposes.
